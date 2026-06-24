@@ -81,7 +81,7 @@ Factory.define('courseHomeMetadata')
     Factory.build(
       'tab',
       {
-        title: 'Progressss',
+        title: 'Progress',
         priority: 3,
         slug: 'progress',
         type: 'progress',

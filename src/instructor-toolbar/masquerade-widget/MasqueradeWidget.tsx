@@ -88,7 +88,7 @@ export const MasqueradeWidget: React.FC<Props> = ({ courseId, onError }) => {
 
   const specificLearnerInputText = intl.formatMessage(messages.placeholder);
   return (
-    <div className="flex-grow-1">
+    <div className="flex-grow-1 text-white">
       <div className="row">
         <span className="col-auto col-form-label pl-3"><FormattedMessage {...messages.titleViewAs} /></span>
         <Dropdown className="flex-shrink-1 mx-1">
