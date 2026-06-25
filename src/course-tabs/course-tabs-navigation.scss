@@ -5,14 +5,19 @@
   .nav a,
   .nav button {
     &:hover {
-      background-color: var(--pgn-color-light-400);
+      font-weight: var(--pgn-typography-font-weight-normal);
+      color: var(--pgn-color-primary-600);
+      background-color: var(--pgn-color-primary-50);
+      font-weight: 700;
     }
   }
 
   .nav a {
     &:not(.active):hover {
-      background-color: var(--pgn-color-light-400);
-      border-bottom: none;
+      font-weight: var(--pgn-typography-font-weight-normal);
+      color: var(--pgn-color-primary-600);
+      background-color: var(--pgn-color-primary-50);
+      font-weight: 500;
     }
   }
 
