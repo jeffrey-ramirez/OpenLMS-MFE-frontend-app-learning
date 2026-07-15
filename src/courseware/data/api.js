@@ -116,3 +116,27 @@ export async function getCoursewareOutlineSidebarToggles(courseId) {
     enable_completion_tracking: data.enable_completion_tracking || false,
   };
 }
+
+/**
+ * Report time spent (in seconds) on a course to the backend, so it can eventually be persisted
+ * server-side and surfaced anywhere progress data is needed (not just this browser/device).
+ *
+ * STUB: `/api/courseware/v1/time_spent/:courseId` does not exist on the LMS (edx-platform) yet.
+ * This call is wired up ahead of that backend work so the frontend is ready to go once it lands.
+ * Until then, this will always fail (404/network error) - that's expected, so failures are caught
+ * and swallowed here rather than surfaced to the learner. The authoritative, currently-working
+ * source of truth for time spent is the localStorage-backed tracking in `./timeTracking.js`.
+ * TODO: once the backend endpoint ships, remove the try/catch swallow (or replace it with real
+ * error handling/retry) so failures are no longer silently ignored.
+ */
+export async function postTimeSpent(courseId, seconds) {
+  try {
+    const { data } = await getAuthenticatedHttpClient().patch(
+      `${getConfig().LMS_BASE_URL}/api/courseware/v1/time_spent/${courseId}`,
+      { seconds_spent: seconds },
+    );
+    return data;
+  } catch (error) {
+    return null;
+  }
+}

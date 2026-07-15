@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl, FormattedMessage } from '@edx/frontend-platform/i18n';
+import { Container } from '@openedx/paragon';
 
 import { ALERT_TYPES, AlertList } from '../generic/user-messages';
 import Alert from '../generic/user-messages/Alert';
@@ -69,47 +70,49 @@ const InstructorToolbar = (props) => {
   const courseStartDateMasqueradeBanner = useCourseStartMasqueradeBanner(courseId, tab);
 
   return (!didMount ? null : (
-    <div data-testid="instructor-toolbar">
-      <div className="bg-primary text-white">
-        <div className="container-xl py-3 d-md-flex justify-content-end align-items-start">
-          <div className="align-items-center flex-grow-1 d-md-flex mx-1 my-1">
-            <MasqueradeWidget courseId={courseId} onError={showMasqueradeError} />
+    <div data-testid="instructor-toolbar" className="bg-primary text-white">
+      <Container fluid>
+        <div>
+          <div className="py-3 d-md-flex justify-content-end align-items-start">
+            <div className="align-items-center flex-grow-1 d-md-flex my-1">
+              <MasqueradeWidget courseId={courseId} onError={showMasqueradeError} />
+            </div>
+            {((urlStudio && isStudioButtonVisible) || urlInsights) && (
+              <>
+                <hr className="border-light" />
+                <span className="mr-2 mt-1 col-form-label"><FormattedMessage {...messages.titleViewCourseIn} /></span>
+              </>
+            )}
+            {urlStudio && isStudioButtonVisible && (
+              <span className="mx-1 my-1">
+                <a className="btn btn-inverse-outline-primary" href={urlStudio}>{formatMessage(messages.titleStudio)}</a>
+              </span>
+            )}
+            {urlInsights && (
+              <span className="mx-1 my-1">
+                <a className="btn btn-inverse-outline-primary" href={urlInsights}>{formatMessage(messages.titleInsights)}</a>
+              </span>
+            )}
           </div>
-          {((urlStudio && isStudioButtonVisible) || urlInsights) && (
-            <>
-              <hr className="border-light" />
-              <span className="mr-2 mt-1 col-form-label"><FormattedMessage {...messages.titleViewCourseIn} /></span>
-            </>
-          )}
-          {urlStudio && isStudioButtonVisible && (
-            <span className="mx-1 my-1">
-              <a className="btn btn-inverse-outline-primary" href={urlStudio}>{formatMessage(messages.titleStudio)}</a>
-            </span>
-          )}
-          {urlInsights && (
-            <span className="mx-1 my-1">
-              <a className="btn btn-inverse-outline-primary" href={urlInsights}>{formatMessage(messages.titleInsights)}</a>
-            </span>
-          )}
         </div>
-      </div>
-      {masqueradeErrorMessage && (
-        <div className="container-xl mt-3">
-          <Alert
-            type={ALERT_TYPES.ERROR}
-            dismissible={false}
-          >
-            {masqueradeErrorMessage}
-          </Alert>
-        </div>
-      )}
-      <AlertList
-        topic="instructor-toolbar-alerts"
-        customAlerts={{
-          ...accessExpirationMasqueradeBanner,
-          ...courseStartDateMasqueradeBanner,
-        }}
-      />
+        {masqueradeErrorMessage && (
+          <div className="container-xl mt-3">
+            <Alert
+              type={ALERT_TYPES.ERROR}
+              dismissible={false}
+            >
+              {masqueradeErrorMessage}
+            </Alert>
+          </div>
+        )}
+        <AlertList
+          topic="instructor-toolbar-alerts"
+          customAlerts={{
+            ...accessExpirationMasqueradeBanner,
+            ...courseStartDateMasqueradeBanner,
+          }}
+        />
+      </Container>
     </div>
   ));
 };

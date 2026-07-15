@@ -11,12 +11,18 @@ import {
   getResumeBlock,
   getSequenceForUnitDeprecated,
   saveSequencePosition,
+  postTimeSpent,
+  addTimeSpent,
 } from './data';
 import { TabPage } from '../tab-page';
 
 import Course from './course';
 import { handleNextSectionCelebration } from './course/celebration';
 import withParamsAndNavigation from './utils';
+
+// How often we flush accumulated time-on-course to local storage (and attempt to sync to the
+// backend) while a learner is actively viewing an ongoing course. See `startTimeTracking` below.
+const TIME_TRACKING_FLUSH_INTERVAL_MS = 30 * 1000;
 
 // Look at where this is called in componentDidUpdate for more info about its usage
 export const checkResumeRedirect = memoize(
@@ -172,6 +178,54 @@ class CoursewareContainer extends Component {
     }
   });
 
+  // Every time a learner visits this (ongoing) course, start a session timer. Elapsed time is
+  // periodically flushed (see flushTimeSpent) into local storage and rolled up into the "Total
+  // Time Spent" stat on the learner dashboard's Progress Summary widget.
+  startTimeTracking = () => {
+    this.timeTrackingCourseId = this.props.routeCourseId;
+    this.timeTrackingSessionStartedAt = Date.now();
+    this.timeTrackingFlushIntervalId = setInterval(
+      this.flushTimeSpent,
+      TIME_TRACKING_FLUSH_INTERVAL_MS,
+    );
+    document.addEventListener('visibilitychange', this.handleTimeTrackingVisibilityChange);
+  };
+
+  // Pause the timer while the tab is hidden (backgrounded) so we don't count time the learner
+  // isn't actually looking at the course, and resume it when they come back.
+  handleTimeTrackingVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      this.flushTimeSpent();
+    } else {
+      this.timeTrackingSessionStartedAt = Date.now();
+    }
+  };
+
+  flushTimeSpent = () => {
+    const { timeTrackingCourseId, timeTrackingSessionStartedAt } = this;
+    if (!timeTrackingCourseId || !timeTrackingSessionStartedAt) {
+      return;
+    }
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - timeTrackingSessionStartedAt) / 1000);
+    this.timeTrackingSessionStartedAt = now;
+    if (elapsedSeconds <= 0) {
+      return;
+    }
+    addTimeSpent(timeTrackingCourseId, elapsedSeconds);
+    // Fire-and-forget: postTimeSpent swallows its own errors (see data/api.js), so no catch needed here.
+    postTimeSpent(timeTrackingCourseId, elapsedSeconds);
+  };
+
+  stopTimeTracking = () => {
+    this.flushTimeSpent();
+    if (this.timeTrackingFlushIntervalId) {
+      clearInterval(this.timeTrackingFlushIntervalId);
+      this.timeTrackingFlushIntervalId = null;
+    }
+    document.removeEventListener('visibilitychange', this.handleTimeTrackingVisibilityChange);
+  };
+
   componentDidMount() {
     const {
       routeCourseId,
@@ -180,6 +234,7 @@ class CoursewareContainer extends Component {
     // Load data whenever the course or sequence ID changes.
     this.checkFetchCourse(routeCourseId);
     this.checkFetchSequence(routeSequenceId);
+    this.startTimeTracking();
   }
 
   componentDidUpdate() {
@@ -202,6 +257,13 @@ class CoursewareContainer extends Component {
     // Load data whenever the course or sequence ID changes.
     this.checkFetchCourse(routeCourseId);
     this.checkFetchSequence(routeSequenceId);
+
+    // Restart time tracking if the learner has navigated to a different course without this
+    // component unmounting (e.g. jumping from one course straight into another).
+    if (routeCourseId && routeCourseId !== this.timeTrackingCourseId) {
+      this.stopTimeTracking();
+      this.startTimeTracking();
+    }
 
     // Check if we should save our sequence position.  Only do this when the route unit ID changes.
     this.checkSaveSequencePosition(routeUnitId);
@@ -301,6 +363,10 @@ class CoursewareContainer extends Component {
       navigate,
       isPreview,
     );
+  }
+
+  componentWillUnmount() {
+    this.stopTimeTracking();
   }
 
   handleUnitNavigationClick = () => {

@@ -7,6 +7,7 @@ import { useCoursewareSearchState } from '../course-home/courseware-search/hooks
 
 import Tabs from '../generic/tabs/Tabs';
 import messages from './messages';
+import { Container } from '@openedx/paragon';
 
 interface CourseTabsNavigationProps {
   activeTabSlug?: string;
@@ -22,13 +23,13 @@ const CourseTabsNavigation = ({
   activeTabSlug = undefined,
   className = null,
   tabs,
-}:CourseTabsNavigationProps) => {
+}: CourseTabsNavigationProps) => {
   const intl = useIntl();
   const { show } = useCoursewareSearchState();
 
   return (
-    <div id="courseTabsNavigation" className={classNames('course-tabs-navigation', className)}>
-      <div className="container-xl">
+    <Container fluid>
+      <div id="courseTabsNavigation" className={classNames('course-tabs-navigation', className)}>
         <div className="nav-bar">
           <div className="nav-menu">
             <Tabs
@@ -44,7 +45,7 @@ const CourseTabsNavigation = ({
         </div>
       </div>
       {show && <CoursewareSearch />}
-    </div>
+    </Container>
   );
 };
 

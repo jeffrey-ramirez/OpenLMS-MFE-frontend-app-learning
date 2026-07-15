@@ -17,6 +17,7 @@
 * [`org.openedx.frontend.learning.right_sidebar_trigger.v1`](./RightSidebarTriggerSlot/)
 * [`org.openedx.frontend.learning.right_sidebar.v1`](./RightSidebarSlot/)
 * [`org.openedx.frontend.learning.upgrade_panel.v1`](../widgets/upgrade/) _(upgrade / upsell panel — see [ADR 0010](../../docs/decisions/0010-upgrade-widget-extraction.md))_
+* [`org.openedx.frontend.learning.welcome_banner.v1`](./WelcomeBannerSlot/)
 * [`org.openedx.frontend.learning.progress_certificate_status.v1`](./ProgressCertificateStatusSlot/)
 * [`org.openedx.frontend.learning.progress_tab_certificate_status_main_body.v1`](./ProgressTabCertificateStatusMainBodySlot/)
 * [`org.openedx.frontend.learning.progress_tab_certificate_status_side_panel.v1`](./ProgressTabCertificateStatusSidePanelSlot/)

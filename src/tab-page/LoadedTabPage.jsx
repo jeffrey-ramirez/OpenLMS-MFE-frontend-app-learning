@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 
 import { getConfig } from '@edx/frontend-platform';
-import { useToggle } from '@openedx/paragon';
+import { useToggle, Container } from '@openedx/paragon';
 
 import { CourseTabsNavigation } from '../course-tabs';
 import { useModel } from '../generic/model-store';
 import { AlertList } from '../generic/user-messages';
 import StreakModal from '../shared/streak-celebration';
 import InstructorToolbar from '../instructor-toolbar';
+import WelcomeBannerSlot from '../plugin-slots/WelcomeBannerSlot';
 import useEnrollmentAlert from '../alerts/enrollment-alert';
 import useLogistrationAlert from '../alerts/logistration-alert';
 
@@ -41,7 +42,7 @@ const LoadedTabPage = ({
 
   const streakLengthToCelebrate = celebrations && celebrations.streakLengthToCelebrate;
   const streakDiscountCouponEnabled = celebrations && celebrations.streakDiscountEnabled && verifiedMode;
-  const [isStreakCelebrationOpen,, closeStreakCelebration] = useToggle(streakLengthToCelebrate);
+  const [isStreakCelebrationOpen, , closeStreakCelebration] = useToggle(streakLengthToCelebrate);
 
   return (
     <>
@@ -62,6 +63,7 @@ const LoadedTabPage = ({
           isStudioButtonVisible={hasCourseAuthorAccess}
         />
       )}
+      <WelcomeBannerSlot />
       <StreakModal
         courseId={courseId}
         metadataModel={metadataModel}
@@ -81,8 +83,10 @@ const LoadedTabPage = ({
           }}
         />
         <CourseTabsNavigation tabs={tabs} className="mb-3" activeTabSlug={activeTabSlug} />
-        <div id="main-content" className="container-xl">
-          {children}
+        <div id="main-content">
+          <Container fluid>
+            {children}
+          </Container>
         </div>
       </main>
     </>
